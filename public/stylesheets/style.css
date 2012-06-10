@@ -113,11 +113,13 @@ body {
   margin-top: -5px;
 }
 .container {
-  margin-left: 240px;
   font-family: Gotham, Helvetica, Arial, Sans-serif;
   font-weight: normal;
 }
-.container .item {
+.container .box_container {
+  margin-left: 240px;
+}
+.container .box_container .item {
   background-color: #fff;
   -webkit-box-shadow: 0px 1px 3px #b1b2b6;
   box-shadow: 0px 0px 3px #b1b2b6;
@@ -126,17 +128,17 @@ body {
   width: 200px;
   border-radius: 3px;
 }
-.container .item img.profile {
+.container .box_container .item img.profile {
   height: 30px;
   float: left;
   padding-right: 10px;
   padding-bottom: 5px;
 }
-.container .item .links {
+.container .box_container .item .links {
   text-align: right;
   font-size: 11px;
 }
-.container .item .links a {
+.container .box_container .item .links a {
   float: right;
   display: block;
   width: 35px;
@@ -145,13 +147,13 @@ body {
   background-position: left top;
   overflow: hidden;
 }
-.container .item .links a:hover {
+.container .box_container .item .links a:hover {
   background-position: left bottom;
 }
-.container .item .links .likes a {
+.container .box_container .item .links .likes a {
   background-image: url("../img/like.png");
   margin-right: 10px;
 }
-.container .item .links .shares a {
+.container .box_container .item .links .shares a {
   background-image: url("../img/share.png");
 }

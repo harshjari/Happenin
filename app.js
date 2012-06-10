@@ -12,18 +12,19 @@ var express = require('express')
   , Schema = mongoose.Schema
   , ObjectId = Schema.ObjectId;
 
-mongoose.connect('mongodb://localhost/temp1');
+mongoose.connect('mongodb://localhost/temp2');
 
 var conn = mongoose.connection;
 
 var Tweet = new Schema({
     id        : ObjectId
-  , id_string : String
+  , id_string : { type: String, unique: true }
   , Name      : String
   , text      : String
   , picture   : [String]
   , pic_num   : Number
-  , time      : Date
+  , profile_p : String
+  , time      : Number
   , Likes     : Number
 });
 
@@ -49,16 +50,47 @@ var twitter_client = new twitter({
 });
 
 var tweeterer = mongoose.model('Tweet', Tweet);
+var first_run = 0;
 
-var stream = twitter_client.stream('statuses/filter', { track: '#adsadasdsa' });
+twitter_client.get('search', { q: 'XHack2012', since: '2012-01-01', rpp: 100 }, function(err, reply) {
+  if(first_run === 0) {
+    first_run = 1;
+    //console.log('length'+reply.results.length);
+    //console.log(reply.next_page);
+    var i = 0;
+    while(i<reply.results.length) {
+      var tweeter = new tweeterer();
+      tweeter.time = Date.parse(reply.results[i].created_at);
+      tweeter.id_string = reply.results[i].id_str;
+      tweeter.profile_p = reply.results[i].profile_image_url;
+      tweeter.Name = reply.results[i].from_user;
+      tweeter.pic_num = 0;
+      tweeter.Likes = 0;
+      tweeter.text = reply.results[i].text;
+      tweeter.save(function(err){
+        if (err) {
+          console.log(err);
+        }
+        else
+        {
+          console.log('save');
+        }
+      });
+      i++;
+    }
+
+  }
+});
+
+var stream = twitter_client.stream('statuses/filter', { track: 'XHack2012,XHACK' });
 stream.on('tweet', function (tweet) {
-  //console.log(tweet);
   var tweeter = new tweeterer();
   console.log(tweet.id_str);
   tweeter.id_string = tweet.id_str;
   tweeter.Name = tweet.user.screen_name;
   tweeter.pic_num = 0;
   tweeter.text = tweet.text;
+  tweeter.profile_p = tweet.user.profile_image_url;
   if(tweet.entities.urls.length)
   {
     //console.log("length" + tweet.entities.urls.length);
@@ -66,13 +98,13 @@ stream.on('tweet', function (tweet) {
     while(i<tweet.entities.urls.length)
     {
       tweeter.picture[i] = tweet.entities.urls[i].expanded_url;
-      console.log("urls"+ tweet.entities.urls[i].expanded_url);
+      //console.log("urls"+ tweet.entities.urls[i].expanded_url);
       i++;
     }
     tweeter.pic_num = i;
   }
 
-  tweeter.time = tweet.created_at;
+  tweeter.time = Date.parse(tweet.created_at);
   tweeter.Likes = 0;
   tweeter.save(function(err){
     if (err) {
@@ -80,7 +112,7 @@ stream.on('tweet', function (tweet) {
     }
     else
     {
-      console.log('save');
+      //console.log('save');
     }
 
   });
@@ -113,9 +145,9 @@ app.get('/index', function(req, res){
 
 app.get('/twitterfeed', function(req,res){
   tweeterer.find({}, function (err, docs) {
-    if(docs.length) {
-      console.log('doc length'+docs.length);
-    }
+    //if(docs.length) {
+      //console.log('doc length'+docs.length);
+    //}
 
     if(err) {
       console.log(err);
@@ -126,6 +158,29 @@ app.get('/twitterfeed', function(req,res){
   });
 });
 
+function compare(a,b) {
+  if (a.created_at < b.created_at)
+     return -1;
+  if (a.created_at > b.created_at)
+    return 1;
+  return 0;
+}
+
+app.get('/feed', function(req,res){
+  tweeterer.find({}, function (err, docs) {
+    //if(docs.length) {
+      //console.log('doc length'+docs.length);
+    //}
+    docs.sort(compare);
+
+    if(err) {
+      console.log(err);
+    }
+    else {
+      res.send(docs);
+    }
+  });
+});
 
 // OAuth request according http://via.me/developers/authentication
 app.get('/auth_via_me', function(req, response){
@@ -168,10 +223,6 @@ app.get('/auth_via_me', function(req, response){
   req2.write(code_string);
   
   req2.end();
-});
-
-app.get('/geteventbrite', function(req, res){
-  res.render('geteventbrite' , { title: 'happenin' });
 });
 
 app.get('/getoauth', function(req, res){
