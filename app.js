@@ -75,35 +75,33 @@ app.get('/getoauth', function(req, res){
   res.render('getoauth' , { title: 'happenin' });
 })
 
-app.get('/callback_via_me', function(req, res){
-  var received_code = req.query.code;
-  var input = 'client_secret=e0pz647r2htf8d2oyftt7yxyo&grant_type=authorization_code&redirect_uri=http://www.happenin.co/auth_via_me&code=' + received_code + '&response_type=token';
-  var length = input.length;
+app.get('/callback_via_me', function(req, response){
 
-  var headers = {"Content-Length": length};
+  var code_string = 'client_id=ef7ewclqgf2kvs734o9lzcswk&client_secret=e0pz647r2htf8d2oyftt7yxyo&grant_type=authorization_code&redirect_uri=http://www.happenin.co/auth_via_me&code=' + req.query.code + '&response_type=token';
 
   var options = {
     host: "via.me",
-    port: 80,
+    port: '80',
     path: '/oauth/access_token',
     method: 'POST',
-    "Content-Length": length
+    headers: {
+      'Content-Length': code_string.length
+    }
   };
-
-  console.log(options.path);
-
 
   req = http.request(options, function(res) {
     console.log('STATUS: ' + res.statusCode);
     console.log('HEADERS: ' + JSON.stringify(res.headers));
+    
     res.setEncoding('utf8');
     res.on('data', function (chunk) {
       console.log('BODY: ' + chunk);
     });
 
+    response.end();
   });
 
-  req.write(input);
+  req.write(code_string);
   
   req.end();
 });
