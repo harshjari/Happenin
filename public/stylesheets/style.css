@@ -98,8 +98,22 @@ body {
   font-weight: normal;
   color: #808285;
 }
-.container {
+.info {
+  float: left;
+  margin: 5px 0px 0px 20px;
+  background-color: #fff;
+  -webkit-box-shadow: 0px 1px 3px #b1b2b6;
+  box-shadow: 0px 0px 3px #b1b2b6;
+  width: 200px;
+  border-radius: 3px;
+}
+.info .event_logo img.event_logo {
   width: 100%;
+  margin-left: -5px;
+  margin-top: -5px;
+}
+.container {
+  margin-left: 240px;
   font-family: Gotham, Helvetica, Arial, Sans-serif;
   font-weight: normal;
 }

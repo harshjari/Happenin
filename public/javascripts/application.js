@@ -29,6 +29,16 @@ var client = {
 		
 		var $boxes = $('<div class="item">' + img + ' || <a href="http://twitter.com/' + tweet.Name + '">@' + tweet.Name + '</a> || ' + $.timeago(tweet.time) + ' || ' + tweet.text.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@@#\/%?=~_|!:,.;]*[-A-Z0-9+&@@#\/%=~_|])/ig, '<a href="$1" target="_blank" rel="nofollow">$1</a>').replace(/(?:^| )[@]+(\w+)/ig, ' <a href="http://www.twitter.com/$1" class="user" target="_blank" rel="nofollow">@$1</a>').replace(/(?:^| )[#]+([\w\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0600-\u06ff]+)/ig, ' <a href="http://search.twitter.com/search?q=&tag=$1&lang=all" class="hash" target="_blank" rel="nofollow">#$1</a>') + '</div>');
 		$('.container').prepend( $boxes ).masonry( 'reload' );
+	}, 
+
+	getAttendees : function(){
+
+		$.ajax({
+  			url: "https://www.eventbrite.com/json/event_list_attendees?id=3417554999&app_key=NMGPX4UPZJIRD766RK",
+  			cache: false	
+		}).done(function( json ) {
+			console.log(json);
+		});		
 	}
 }
 
@@ -43,7 +53,8 @@ $(function(){
 	});
 
 	client.getTweets();
-
+	client.getAttendees();
+	
 	setInterval(function() {
 		client.getTweets();
 	}, 5000);

@@ -50,7 +50,7 @@ var twitter_client = new twitter({
 
 var tweeterer = mongoose.model('Tweet', Tweet);
 
-var stream = twitter_client.stream('statuses/filter', { track: '#love' });
+var stream = twitter_client.stream('statuses/filter', { track: '#adsadasdsa' });
 stream.on('tweet', function (tweet) {
   //console.log(tweet);
   var tweeter = new tweeterer();
@@ -168,6 +168,10 @@ app.get('/auth_via_me', function(req, response){
   req2.write(code_string);
   
   req2.end();
+});
+
+app.get('/geteventbrite', function(req, res){
+  res.render('geteventbrite' , { title: 'happenin' });
 });
 
 app.get('/getoauth', function(req, res){
