@@ -6,7 +6,8 @@
 var express = require('express')
   , routes = require(__dirname + '/routes')
   , util = require('util')
-  , twitter = require('twit');
+  , twitter = require('twit')
+  , http = require('http');
 
 var app = module.exports = express.createServer();
 
@@ -66,12 +67,45 @@ app.get('/twitterfeed', function(req,res){
 });
 
 // OAuth request according http://via.me/developers/authentication
+app.get('/auth_via_me', function(req, res){
+  res.render('auth_via_me' , { title: 'happenin' });
+})
+
 app.get('/getoauth', function(req, res){
   res.render('getoauth' , { title: 'happenin' });
 })
 
 app.get('/callback_via_me', function(req, res){
-  res.render('index' , { title: 'happenin' });
+  var received_code = req.query.code;
+  var input = 'client_secret=e0pz647r2htf8d2oyftt7yxyo&grant_type=authorization_code&redirect_uri=http://www.happenin.co/auth_via_me&code=' + received_code + '&response_type=token';
+  var length = input.length;
+
+  var headers = {"Content-Length": length};
+
+  var options = {
+    host: "via.me",
+    port: 80,
+    path: '/oauth/access_token',
+    method: 'POST',
+    "Content-Length": length
+  };
+
+  console.log(options.path);
+
+
+  req = http.request(options, function(res) {
+    console.log('STATUS: ' + res.statusCode);
+    console.log('HEADERS: ' + JSON.stringify(res.headers));
+    res.setEncoding('utf8');
+    res.on('data', function (chunk) {
+      console.log('BODY: ' + chunk);
+    });
+
+  });
+
+  req.write(input);
+  
+  req.end();
 });
 
 
