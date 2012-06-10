@@ -7,7 +7,20 @@ var express = require('express')
   , routes = require(__dirname + '/routes')
   , util = require('util')
   , twitter = require('twit')
-  , http = require('http');
+  , http = require('http')
+  , mongoose = require('mongoose')
+  , Schema = mongoose.Schema
+  , ObjectId = Schema.ObjectId;
+
+var Tweet = new Schema({
+    id        : ObjectId
+  , id_string : String
+  , Name      : String
+  , picture   : [String]
+  , pic_num   : Number
+  , tweet     : Date
+  , Likes     : Number
+});
 
 var app = module.exports = express.createServer();
 
@@ -29,6 +42,8 @@ var twitter_client = new twitter({
     access_token: '604028730-kf6vDQ4SVVclB1sXVmSboTr9ZfXxAHEiEqmdLl6J',
     access_token_secret: 'WxmkvAiC2alyYpqLh2uAfHDByyJo4RbMxx9LFRC8Y'
 });
+
+mongoose.connect('mongodb://localhost');
 
 /*app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
@@ -69,45 +84,51 @@ app.get('/twitterfeed', function(req,res){
 });
 
 // OAuth request according http://via.me/developers/authentication
-app.get('/auth_via_me', function(req, res){
-  res.render('auth_via_me' , { title: 'happenin' });
-})
-
-app.get('/getoauth', function(req, res){
-  res.render('getoauth' , { title: 'happenin' });
-})
-
-app.get('/callback_via_me', function(req, response){
-
-  var code_string = 'client_id=ef7ewclqgf2kvs734o9lzcswk&client_secret=e0pz647r2htf8d2oyftt7yxyo&grant_type=authorization_code&redirect_uri=http://www.happenin.co/auth_via_me&code=' + req.query.code + '&response_type=token';
-
+app.get('/auth_via_me', function(req, response){
+  var code_string = 'client_id=bdot8obe5grg7jnvrsub5wch0&client_secret=3l5ynyvg33xppjqslf8rpeizk&grant_type=authorization_code&redirect_uri=http://localhost:3000/auth_via_me&code=' + req.query.code + '&response_type=token';
   var options = {
     host: "via.me",
     port: '80',
-    path: '/oauth/access_token',
+    path: '/oauth/access_token.json',
     method: 'POST',
     headers: {
       'Content-Length': code_string.length
     }
   };
 
-  req = http.request(options, function(res) {
+
+  var req2 = http.request(options, function(res) {
     console.log('STATUS: ' + res.statusCode);
     console.log('HEADERS: ' + JSON.stringify(res.headers));
-    
     res.setEncoding('utf8');
+    /*console.log("res:" +res);
+    console.log("q"+res.params);
+    console.log('huh'+res.body);*/
+    var body = '';
     res.on('data', function (chunk) {
-      console.log('BODY: ' + chunk);
+      console.log('BODY: C');
+      console.log(chunk);
+      body += chunk;
     });
 
-    response.end();
+    res.on('end', function (finis) {
+      console.log('BODY: F');
+      //console.log(finis);
+      console.log(body);
+      response.end();
+    });
+
   });
 
-  req.write(code_string);
+  req2.write(code_string);
   
-  req.end();
+  req2.end();
+
 });
 
+app.get('/getoauth', function(req, res){
+  res.render('getoauth' , { title: 'happenin' });
+});
 
 app.listen(3000, function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
