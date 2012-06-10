@@ -55,12 +55,14 @@ app.get('/index', function(req, res){
 });
 
 app.get('/twitterfeed', function(req,res){
-  var stream = twitter_client.stream('statuses/filter', { track: 'hack' });
+  var stream = twitter_client.stream('statuses/filter', { track: '#nyc' });
   stream.on('tweet', function (tweet) {
     //console.log(tweet);
     console.log(tweet.id_str);
     if(tweet.entities.urls.length)
+    {
       console.log("length" + tweet.entities.urls.length);
+    } 
     console.log("fasfasdalknwngbijbkajs"+tweet.entities.urls[0].url);
     res.send(tweet);
   });
