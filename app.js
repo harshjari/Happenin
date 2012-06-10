@@ -12,13 +12,17 @@ var express = require('express')
   , Schema = mongoose.Schema
   , ObjectId = Schema.ObjectId;
 
+mongoose.connect('mongodb://localhost/my_database');
+
+var conn = mongoose.connection;
+
 var Tweet = new Schema({
     id        : ObjectId
   , id_string : String
   , Name      : String
   , picture   : [String]
   , pic_num   : Number
-  , tweet     : Date
+  , time      : Date
   , Likes     : Number
 });
 
@@ -43,7 +47,43 @@ var twitter_client = new twitter({
     access_token_secret: 'WxmkvAiC2alyYpqLh2uAfHDByyJo4RbMxx9LFRC8Y'
 });
 
-mongoose.connect('mongodb://localhost');
+var tweeterer = mongoose.model('Tweet', Tweet);
+
+var stream = twitter_client.stream('statuses/filter', { track: '#love' });
+stream.on('tweet', function (tweet) {
+  //console.log(tweet);
+  var tweeter = new tweeterer();
+  console.log(tweet.id_str);
+  tweeter.id_string = tweet.id_str;
+  tweeter.Name = tweet.user.screen_name;
+  tweeter.pic_num = 0;
+  if(tweet.entities.urls.length)
+  {
+    //console.log("length" + tweet.entities.urls.length);
+    var i = 0;
+    while(i<tweet.entities.urls.length)
+    {
+      tweeter.picture[i] = tweet.entities.urls[i].expanded_url;
+      console.log("urls"+ tweet.entities.urls[i].expanded_url);
+      i++;
+    }
+    tweeter.pic_num = i;
+  }
+
+  tweeter.time = tweet.created_at;
+  tweeter.Likes = 0;
+  tweeter.save(function(err){
+    if (err) {
+      console.log(err);
+    }
+    else
+    {
+      console.log('save');
+    }
+
+  });
+  //console.log("fasfasdalknwngbijbkajs"+tweet.entities.urls[0].url);
+});
 
 /*app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
@@ -67,21 +107,23 @@ app.get('/', function(req, res){
 
 app.get('/index', function(req, res){
   res.render('index' , { title: 'happenin' });
-});
+});parseFloat
 
 app.get('/twitterfeed', function(req,res){
-  var stream = twitter_client.stream('statuses/filter', { track: '#nyc' });
-  stream.on('tweet', function (tweet) {
-    //console.log(tweet);
-    console.log(tweet.id_str);
-    if(tweet.entities.urls.length)
-    {
-      console.log("length" + tweet.entities.urls.length);
-    } 
-    console.log("fasfasdalknwngbijbkajs"+tweet.entities.urls[0].url);
-    res.send(tweet);
+  tweeterer.find({}, function (err, docs) {
+    if(docs.length) {
+      console.log('doc length'+docs.length);
+    }
+
+    if(err) {
+      console.log(err);
+    }
+    else {
+      res.send(docs);
+    }
   });
 });
+
 
 // OAuth request according http://via.me/developers/authentication
 app.get('/auth_via_me', function(req, response){
