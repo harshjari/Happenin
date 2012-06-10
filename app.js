@@ -12,7 +12,7 @@ var express = require('express')
   , Schema = mongoose.Schema
   , ObjectId = Schema.ObjectId;
 
-mongoose.connect('mongodb://localhost/my_database');
+mongoose.connect('mongodb://localhost/midman');
 
 var conn = mongoose.connection;
 
@@ -20,6 +20,7 @@ var Tweet = new Schema({
     id        : ObjectId
   , id_string : String
   , Name      : String
+  , text      : String
   , picture   : [String]
   , pic_num   : Number
   , time      : Date
@@ -49,7 +50,7 @@ var twitter_client = new twitter({
 
 var tweeterer = mongoose.model('Tweet', Tweet);
 
-var stream = twitter_client.stream('statuses/filter', { track: '#love' });
+var stream = twitter_client.stream('statuses/filter', { track: 'Hack,xhack,xhack2012,hackathon,hacking,hacker' });
 stream.on('tweet', function (tweet) {
   //console.log(tweet);
   var tweeter = new tweeterer();
@@ -57,6 +58,7 @@ stream.on('tweet', function (tweet) {
   tweeter.id_string = tweet.id_str;
   tweeter.Name = tweet.user.screen_name;
   tweeter.pic_num = 0;
+  tweeter.text = tweet.text;
   if(tweet.entities.urls.length)
   {
     //console.log("length" + tweet.entities.urls.length);
