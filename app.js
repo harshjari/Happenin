@@ -54,8 +54,8 @@ app.get('/index', function(req, res){
   res.render('index' , { title: 'happenin' });
 });
 
-app.get('/twitterfeed', function(req,res){
-  var stream = twitter_client.stream('statuses/filter', { track: '#nyc' });
+app.get('/feed', function(req,res){
+  var stream = twitter_client.stream('statuses/filter', { track: '#yolo' });
   stream.on('tweet', function (tweet) {
     //console.log(tweet);
     console.log(tweet.id_str);
@@ -69,18 +69,8 @@ app.get('/twitterfeed', function(req,res){
 });
 
 // OAuth request according http://via.me/developers/authentication
-app.get('/auth_via_me', function(req, res){
-  res.render('auth_via_me' , { title: 'happenin' });
-})
-
-app.get('/getoauth', function(req, res){
-  res.render('getoauth' , { title: 'happenin' });
-})
-
-app.get('/callback_via_me', function(req, response){
-
-  var code_string = 'client_id=ef7ewclqgf2kvs734o9lzcswk&client_secret=e0pz647r2htf8d2oyftt7yxyo&grant_type=authorization_code&redirect_uri=http://www.happenin.co/auth_via_me&code=' + req.query.code + '&response_type=token';
-
+app.get('/auth_via_me', function(req, response){
+  var code_string = 'client_id=e0hn7s13jjjom16k5q9v7q885&client_secret=9zw22lfpt3grnfumo97qsyvuv&grant_type=authorization_code&redirect_uri=http://localhost:3000/auth_via_me&code=' + req.query.code + '&response_type=token';
   var options = {
     host: "via.me",
     port: '80',
@@ -91,23 +81,36 @@ app.get('/callback_via_me', function(req, response){
     }
   };
 
-  req = http.request(options, function(res) {
-    console.log('STATUS: ' + res.statusCode);
-    console.log('HEADERS: ' + JSON.stringify(res.headers));
+  var req2 = http.request(options, function(res) {
+    // console.log('STATUS: ' + res.statusCode);
+    // console.log('HEADERS: ' + JSON.stringify(res.headers));
     
     res.setEncoding('utf8');
+    
+    // console.log("res:" +res);
+    // console.log("q"+res.params);
+    // console.log('huh'+res.body);
     res.on('data', function (chunk) {
-      console.log('BODY: ' + chunk);
+      // console.log(res);
+      console.log('BODY: C' + chunk);
+    });
+
+    res.on('end', function (finis) {
+      // console.log(res);
+      console.log('BODY: F' + finis);
     });
 
     response.end();
   });
 
-  req.write(code_string);
+  req2.write(code_string);
   
-  req.end();
+  req2.end();
 });
 
+app.get('/getoauth', function(req, res){
+  res.render('getoauth' , { title: 'happenin' });
+});
 
 app.listen(3000, function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
