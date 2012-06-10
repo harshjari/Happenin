@@ -12,7 +12,7 @@ var express = require('express')
   , Schema = mongoose.Schema
   , ObjectId = Schema.ObjectId;
 
-mongoose.connect('mongodb://localhost/midman');
+mongoose.connect('mongodb://localhost/temp1');
 
 var conn = mongoose.connection;
 
@@ -50,7 +50,7 @@ var twitter_client = new twitter({
 
 var tweeterer = mongoose.model('Tweet', Tweet);
 
-var stream = twitter_client.stream('statuses/filter', { track: 'Hack,xhack,xhack2012,hackathon,hacking,hacker' });
+var stream = twitter_client.stream('statuses/filter', { track: '#love' });
 stream.on('tweet', function (tweet) {
   //console.log(tweet);
   var tweeter = new tweeterer();
