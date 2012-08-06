@@ -1,24 +1,19 @@
 {
-  "name": "happenin",
-  "subdomain": "happenin",
-  "scripts": {
-    "start": "app.js"
-  },
-  "version": "0.0.1-11",
+  "version": "0.0.2-19",
   "engines": {
     "node": "0.6.x"
   },
-  "domains": [
-    "happenin.co",
-    "www.happenin.co"
-  ],
   "dependencies": {
     "stylus": "0.27.x",
     "express": "2.5.x",
     "jade": "~0.26.1",
     "twit": "~0.1.6",
-    "nodemon": "~0.6.20",
     "mongoose": "~2.6.7",
     "jquery": "~1.7.2"
+  },
+  "name": "happening2",
+  "subdomain": "harsh",
+  "scripts": {
+    "start": "app.js"
   }
 }
